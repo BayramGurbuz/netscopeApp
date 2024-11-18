@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:myapp/screens/home_screen.dart';
 import 'login_screen.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -83,14 +84,14 @@ Future<void> googleLogin() async {
     // Sign in to Firebase with Google credentials
     await _auth.signInWithCredential(credential);
 
-    // Redirect to the login screen after successful signup
+    // Redirect to the homepage after successful signup
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Google Sign-In successful!")),
       );
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        MaterialPageRoute(builder: (context) => const HomeScreen()), // Change to your homepage widget
       );
     }
   } catch (e) {
@@ -102,6 +103,7 @@ Future<void> googleLogin() async {
     }
   }
 }
+
 
   @override
   Widget build(BuildContext context) {
