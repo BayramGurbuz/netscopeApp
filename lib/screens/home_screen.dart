@@ -1,60 +1,118 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'login_screen.dart'; // Import your LoginScreen
+import 'package:flutter/material.dart';
+import 'login_screen.dart';
+import 'map.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  Future<void> logout(BuildContext context) async {
-    try {
-      await FirebaseAuth.instance.signOut(); // Log the user out
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-        (route) => false, // Remove all previous routes
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error logging out: ${e.toString()}")),
-      );
-    }
-  }
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final User? user = FirebaseAuth.instance.currentUser;
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Home"),
+        title: const Text("NetScope"),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () => logout(context),
+            tooltip: "Logout",
+            onPressed: () {
+              // Navigate to the login screen
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
+              );
+            },
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (user?.photoURL != null)
-              CircleAvatar(
-                backgroundImage: NetworkImage(user!.photoURL!),
-                radius: 50,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3, // 3 columns
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+          ),
+          itemCount: 9, // 9 tiles as shown in the image
+          itemBuilder: (context, index) {
+            // Define the content for the tiles
+            final isMapTile = index == 0;
+            final isSpeedtestTile = index == 1;
+
+            return GestureDetector(
+              onTap: () {
+                if (isMapTile) {
+                  // Navigate to the Map screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MapScreen()),
+                  );
+                }
+              },
+              child: Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.category,
+                      size: 40,
+                      color: Colors.grey,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      isMapTile
+                          ? "Map"
+                          : isSpeedtestTile
+                              ? "Speedtest"
+                              : "Blank",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      isMapTile
+                          ? "Updated today"
+                          : isSpeedtestTile
+                              ? "Upcoming..."
+                              : "Blank",
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ],
+                ),
               ),
-            const SizedBox(height: 16),
-            Text(
-              "Welcome, ${user?.displayName ?? 'User'}",
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              "Email: ${user?.email ?? 'N/A'}",
-              style: const TextStyle(fontSize: 16),
-            ),
-          ],
+            );
+          },
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: 2, // Set Homepage as the active tab
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: "Profile",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: "Favorites",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: "Homepage",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_circle_outline),
+            label: "Contribute",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: "Updates",
+          ),
+        ],
       ),
     );
   }
